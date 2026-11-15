@@ -113,6 +113,25 @@ jobs:
           chmod a+x ~/bin/repo
           sudo ln -sf ~/bin/repo /usr/bin/repo
 
+- name: Set Manifest URL
+  run: |
+    case "${{ github.event.inputs.MANIFEST_BRANCH }}" in
+      twrp-11|twrp-12.1|twrp-14)
+        echo "MANIFEST_URL=https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp.git" >> "$GITHUB_ENV"
+        ;;
+      *)
+        echo "MANIFEST_URL=https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git" >> "$GITHUB_ENV"
+        ;;
+    esac
+
+- name: Initialize Repo
+  run: |
+    mkdir -p workspace
+    cd workspace
+    git config --global user.name "${{ github.actor }}"
+    git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+    repo init --depth=1 -u "${MANIFEST_URL}" -b "${{ github.event.inputs.MANIFEST_BRANCH }}"
+
       - name: Check Manifest Branch
         uses: haya14busa/action-cond@v1
         id: manifest
